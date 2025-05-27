@@ -13,8 +13,10 @@ export default function Home() {
       setLoading(false);
       return;
     }
-    navigator.geolocation.getCurrentPosition(
+    const watcher = navigator.geolocation.watchPosition(
       async (position) => {
+        setLoading(true);
+        setError("");
         try {
           const res = await fetch("/api/generate-message", {
             method: "POST",
@@ -41,6 +43,9 @@ export default function Home() {
         setLoading(false);
       }
     );
+    return () => {
+      navigator.geolocation.clearWatch(watcher);
+    };
   }, []);
 
   return (
