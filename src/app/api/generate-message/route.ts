@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const message = aiData.choices?.[0]?.message?.content?.trim() || 'Welcome!';
     return NextResponse.json({ message });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 } 

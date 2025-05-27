@@ -30,13 +30,13 @@ export default function Home() {
           } else {
             setError(data.error || "Failed to generate message.");
           }
-        } catch (err) {
+        } catch {
           setError("Failed to connect to server.");
         } finally {
           setLoading(false);
         }
       },
-      (geoError) => {
+      () => {
         setError("Unable to retrieve your location.");
         setLoading(false);
       }
