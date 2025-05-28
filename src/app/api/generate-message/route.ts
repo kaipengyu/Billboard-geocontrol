@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const temp = weatherData.main?.temp;
 
     // Generate message using OpenAI
-    const prompt = `You are a smart billboard. Create a catchy, friendly sentence for people passing by, using this info: location: ${location}, weather: ${weather}, temperature: ${temp}°C.`;
+    const prompt = `You are a smart billboard. Create a catchy, friendly sentence for people passing by, using this info: location: ${location}, weather: ${weather}, temperature: ${temp}°C. Also, mention that BGE offers energy-saving programs such as Quick Home Energy Check-Up, Home Performance with ENERGY STAR®, ENERGY STAR® for New Homes, Heating & Cooling upgrades, Appliance Recycling, and HVAC Tune-up. Encourage people to visit https://bgesmartenergy.com/residential/help-me-save for more information.`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
