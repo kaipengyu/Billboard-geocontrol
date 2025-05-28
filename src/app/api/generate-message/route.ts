@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const location = weatherData.name;
     const weather = weatherData.weather?.[0]?.description || 'unknown weather';
-    const temp = weatherData.main?.temp;
+    const temp = Math.round(weatherData.main?.temp);
 
     // Generate message using OpenAI
     const prompt = `You are a smart billboard. Create a catchy, friendly sentence for people passing by, using this info: location: ${location}, weather: ${weather}, temperature: ${temp}°F. Also, mention that BGE offers energy-saving programs such as Quick Home Energy Check-Up, Home Performance with ENERGY STAR®, ENERGY STAR® for New Homes, Heating & Cooling upgrades, Appliance Recycling, and HVAC Tune-up. Encourage people to visit https://bgesmartenergy.com/residential/help-me-save for more information.`;
