@@ -42,55 +42,17 @@ function recommendBGEProduct({ zipCode, weather, temp }: { zipCode: string, weat
   ];
   const weatherLower = weather.toLowerCase();
 
-  const hasSolar = products.find(p => p.includes("solar"));
-  const hasDehumid = products.find(p => p.includes("dehumidifier"));
-
-  const isRain = weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm");
-  const isSnow = weatherLower.includes("snow");
-  const isSun = weatherLower.includes("sun") || weatherLower.includes("clear");
-  const isHot = weatherLower.includes("hot") || temp > 80;
-  const isCold = weatherLower.includes("cold") || temp < 50;
-
-  // 1. Rain/Humid/Storm: recommend dehumidifier if present, never solar
-  if (isRain && hasDehumid) {
-    return hasDehumid;
-  }
-  // 2. Snow: never solar or dehumidifier, fallback to temp logic
-  if (isSnow) {
-    const nonSolarDehumid = products.find(p => !p.includes("solar") && !p.includes("dehumidifier"));
-    if (isHot) return nonSolarDehumid || products[0];
-    if (isCold) return nonSolarDehumid || products[1];
-    return nonSolarDehumid || products[2];
-  }
-  // 3. Sunny/Clear: recommend solar if present, never dehumidifier
-  if (isSun && hasSolar) {
-    return hasSolar;
-  }
-  // 4. Hot: recommend first product, unless it's dehumidifier
-  if (isHot) {
-    if (products[0].includes("dehumidifier")) {
-      const nonDehumid = products.find(p => !p.includes("dehumidifier"));
-      return nonDehumid || products[0];
-    }
+  if ((weatherLower.includes("sun") || weatherLower.includes("clear")) && products.some(p => p.includes("solar"))) {
+    return products.find(p => p.includes("solar"))!;
+  } else if ((weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm")) && products.some(p => p.includes("dehumidifier"))) {
+    return products.find(p => p.includes("dehumidifier"))!;
+  } else if (weatherLower.includes("hot") || temp > 80) {
     return products[0];
-  }
-  // 5. Cold: recommend second product, unless it's dehumidifier
-  if (isCold) {
-    if (products[1].includes("dehumidifier")) {
-      const nonDehumid = products.find(p => !p.includes("dehumidifier"));
-      return nonDehumid || products[1];
-    }
+  } else if (weatherLower.includes("cold") || temp < 50) {
     return products[1];
+  } else {
+    return products[2];
   }
-  // 6. Otherwise: recommend third product, unless it's dehumidifier or solar in inappropriate weather
-  let candidate = products[2];
-  if (candidate.includes("dehumidifier")) {
-    candidate = products.find(p => !p.includes("dehumidifier")) || candidate;
-  }
-  if ((isRain || isSnow) && candidate.includes("solar")) {
-    candidate = products.find(p => !p.includes("solar")) || candidate;
-  }
-  return candidate;
 }
 
 export async function POST(req: NextRequest) {

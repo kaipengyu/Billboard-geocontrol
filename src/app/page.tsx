@@ -1,11 +1,43 @@
 'use client';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./page.module.css";
 
 export default function Home() {
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const watcherRef = useRef<number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Extracted fetch logic
+  const fetchMessage = (position: GeolocationPosition) => {
+    console.log('fetchMessage called with position:', position);
+    setLoading(true);
+    setError("");
+    fetch("/api/generate-message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+      body: JSON.stringify({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.ok) {
+          setMessage(data.message);
+          console.log('Message updated:', data.message);
+        } else {
+          setError(data.error || "Failed to generate message.");
+        }
+      })
+      .catch(() => {
+        setError("Failed to connect to server.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -13,38 +45,38 @@ export default function Home() {
       setLoading(false);
       return;
     }
-    const watcher = navigator.geolocation.watchPosition(
-      async (position) => {
-        setLoading(true);
-        setError("");
-        try {
-          const res = await fetch("/api/generate-message", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            }),
-          });
-          const data = await res.json();
-          if (res.ok) {
-            setMessage(data.message);
-          } else {
-            setError(data.error || "Failed to generate message.");
-          }
-        } catch {
-          setError("Failed to connect to server.");
-        } finally {
-          setLoading(false);
-        }
+    // Initial fetch and watcher
+    watcherRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        fetchMessage(position);
       },
       () => {
         setError("Unable to retrieve your location.");
         setLoading(false);
       }
     );
+
+    // Soft refresh every 30 seconds
+    intervalRef.current = setInterval(() => {
+      console.log('Interval fired, fetching current position...');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchMessage(position);
+        },
+        () => {
+          setError("Unable to retrieve your location.");
+          setLoading(false);
+        }
+      );
+    }, 30000); // 30 seconds
+
     return () => {
-      navigator.geolocation.clearWatch(watcher);
+      if (watcherRef.current !== null) {
+        navigator.geolocation.clearWatch(watcherRef.current);
+      }
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, []);
 
