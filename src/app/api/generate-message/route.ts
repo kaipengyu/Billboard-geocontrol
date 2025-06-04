@@ -4,78 +4,93 @@ import { NextRequest, NextResponse } from 'next/server';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
-// BGE residential products
-const BGE_PRODUCTS = [
-  "connected rewards",
-  "quick home energy check-up",
-  "solar incentives",
-  "EVsmart",
-  "home performance with Energy Star",
-  "heat pump water heater",
-  "smart thermostat",
-  "dehumidifier",
-  "community solar",
-  "rooftop solar",
-  "appliance recycling"
-];
 
-// Recommendation algorithm
-function recommendBGEProduct({ weather, temp, neighborhoodHighlights = [] }: { weather: string, temp: number, neighborhoodHighlights?: string[] }) {
+// Baltimore zip code mapping: each zip code maps to 3 products
+const zipProductMapping: Record<string, [string, string, string]> = {
+  "21201": ["smart thermostat", "appliance recycling", "community solar"],
+  "21202": ["connected rewards", "solar incentives", "quick home energy check-up"],
+  "21205": ["home performance with Energy Star", "heat pump water heater", "appliance recycling"],
+  "21206": ["quick home energy check-up", "dehumidifier", "community solar"],
+  "21209": ["solar incentives", "smart thermostat", "EVsmart"],
+  "21210": ["community solar", "appliance recycling", "solar incentives"],
+  "21211": ["community solar", "quick home energy check-up", "appliance recycling"],
+  "21212": ["home performance with Energy Star", "smart thermostat", "community solar"],
+  "21213": ["quick home energy check-up", "appliance recycling", "dehumidifier"],
+  "21214": ["community solar", "quick home energy check-up", "appliance recycling"],
+  "21215": ["appliance recycling", "quick home energy check-up", "smart thermostat"],
+  "21216": ["appliance recycling", "dehumidifier", "community solar"],
+  "21217": ["community solar", "appliance recycling", "solar incentives"],
+  "21218": ["home performance with Energy Star", "community solar", "smart thermostat"],
+  "21223": ["appliance recycling", "quick home energy check-up", "dehumidifier"],
+  "21224": ["solar incentives", "connected rewards", "community solar"],
+  "21225": ["appliance recycling", "quick home energy check-up", "community solar"],
+  "21226": ["appliance recycling", "community solar", "quick home energy check-up"],
+  "21229": ["quick home energy check-up", "community solar", "appliance recycling"],
+  "21230": ["smart thermostat", "connected rewards", "solar incentives"],
+  "21231": ["community solar", "solar incentives", "appliance recycling"],
+  "21239": ["quick home energy check-up", "home performance with Energy Star", "community solar"],
+  "21251": ["home performance with Energy Star", "community solar", "appliance recycling"],
+  "21287": ["home performance with Energy Star", "appliance recycling", "community solar"]
+};
+
+// Recommendation algorithm: pick product based on weather
+function recommendBGEProduct({ zipCode, weather, temp }: { zipCode: string, weather: string, temp: number }) {
+  const products = zipProductMapping[zipCode] || [
+    "quick home energy check-up",
+    "smart thermostat",
+    "community solar"
+  ];
   const weatherLower = weather.toLowerCase();
-  // Initialize scores
-  const scores: Record<string, number> = Object.fromEntries(BGE_PRODUCTS.map(p => [p, 0]));
 
-  // Weather and temp logic
-  if (weatherLower.includes("hot") || temp > 80) {
-    scores["smart thermostat"] += 3;
-    scores["connected rewards"] += 2;
-    scores["dehumidifier"] += 1;
-  }
-  if (weatherLower.includes("cold") || temp < 50) {
-    scores["heat pump water heater"] += 3;
-    scores["home performance with Energy Star"] += 2;
-    scores["smart thermostat"] += 1;
-  }
-  if (weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm")) {
-    scores["dehumidifier"] += 3;
-    scores["quick home energy check-up"] += 1;
-  }
-  if (weatherLower.includes("clear") || weatherLower.includes("sun")) {
-    scores["solar incentives"] += 3;
-    scores["community solar"] += 2;
-    scores["rooftop solar"] += 2;
-  }
-  if (weatherLower.includes("wind")) {
-    scores["appliance recycling"] += 1;
-  }
+  const hasSolar = products.find(p => p.includes("solar"));
+  const hasDehumid = products.find(p => p.includes("dehumidifier"));
 
-  // Neighborhood-based weighting (less weight)
-  const highlightMap: Record<string, string[]> = {
-    "arts": ["community solar"],
-    "education": ["home performance with Energy Star"],
-    "historic": ["appliance recycling"],
-    "young professionals": ["EVsmart", "smart thermostat"],
-    "parks": ["quick home energy check-up"],
-    "revitalization": ["appliance recycling", "quick home energy check-up"],
-    "university": ["home performance with Energy Star"],
-    "dining": ["connected rewards"],
-    "industrial": ["appliance recycling"],
-    "residential": ["quick home energy check-up"],
-    "diverse community": ["community solar"]
-  };
+  const isRain = weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm");
+  const isSnow = weatherLower.includes("snow");
+  const isSun = weatherLower.includes("sun") || weatherLower.includes("clear");
+  const isHot = weatherLower.includes("hot") || temp > 80;
+  const isCold = weatherLower.includes("cold") || temp < 50;
 
-  // Flatten highlights and update scores in a single pass
-  neighborhoodHighlights.forEach(h => {
-    const hLower = h.toLowerCase();
-    Object.entries(highlightMap).forEach(([key, products]) => {
-      if (hLower.includes(key)) {
-        products.forEach(p => { scores[p] += 1; });
-      }
-    });
-  });
-
-  // Find the product with the highest score
-  return Object.entries(scores).reduce((best, curr) => curr[1] > best[1] ? curr : best)[0];
+  // 1. Rain/Humid/Storm: recommend dehumidifier if present, never solar
+  if (isRain && hasDehumid) {
+    return hasDehumid;
+  }
+  // 2. Snow: never solar or dehumidifier, fallback to temp logic
+  if (isSnow) {
+    const nonSolarDehumid = products.find(p => !p.includes("solar") && !p.includes("dehumidifier"));
+    if (isHot) return nonSolarDehumid || products[0];
+    if (isCold) return nonSolarDehumid || products[1];
+    return nonSolarDehumid || products[2];
+  }
+  // 3. Sunny/Clear: recommend solar if present, never dehumidifier
+  if (isSun && hasSolar) {
+    return hasSolar;
+  }
+  // 4. Hot: recommend first product, unless it's dehumidifier
+  if (isHot) {
+    if (products[0].includes("dehumidifier")) {
+      const nonDehumid = products.find(p => !p.includes("dehumidifier"));
+      return nonDehumid || products[0];
+    }
+    return products[0];
+  }
+  // 5. Cold: recommend second product, unless it's dehumidifier
+  if (isCold) {
+    if (products[1].includes("dehumidifier")) {
+      const nonDehumid = products.find(p => !p.includes("dehumidifier"));
+      return nonDehumid || products[1];
+    }
+    return products[1];
+  }
+  // 6. Otherwise: recommend third product, unless it's dehumidifier or solar in inappropriate weather
+  let candidate = products[2];
+  if (candidate.includes("dehumidifier")) {
+    candidate = products.find(p => !p.includes("dehumidifier")) || candidate;
+  }
+  if ((isRain || isSnow) && candidate.includes("solar")) {
+    candidate = products.find(p => !p.includes("solar")) || candidate;
+  }
+  return candidate;
 }
 
 export async function POST(req: NextRequest) {
@@ -143,9 +158,9 @@ export async function POST(req: NextRequest) {
 
     // Determine recommended BGE product
     const recommendedProduct = recommendBGEProduct({
+      zipCode: zipCode || '',
       weather,
-      temp,
-      neighborhoodHighlights: match?.highlight || []
+      temp
     });
 
     // Generate message using OpenAI
