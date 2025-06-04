@@ -21,33 +21,32 @@ const BGE_PRODUCTS = [
 
 // Recommendation algorithm
 function recommendBGEProduct({ weather, temp, neighborhoodHighlights = [] }: { weather: string, temp: number, neighborhoodHighlights?: string[] }) {
-  // Weather-based weighting
   const weatherLower = weather.toLowerCase();
-  const weatherScores: Record<string, number> = {};
-  BGE_PRODUCTS.forEach(p => weatherScores[p] = 0);
+  // Initialize scores
+  const scores: Record<string, number> = Object.fromEntries(BGE_PRODUCTS.map(p => [p, 0]));
 
-  // Weather logic
+  // Weather and temp logic
   if (weatherLower.includes("hot") || temp > 80) {
-    weatherScores["smart thermostat"] += 3;
-    weatherScores["connected rewards"] += 2;
-    weatherScores["dehumidifier"] += 1;
+    scores["smart thermostat"] += 3;
+    scores["connected rewards"] += 2;
+    scores["dehumidifier"] += 1;
   }
   if (weatherLower.includes("cold") || temp < 50) {
-    weatherScores["heat pump water heater"] += 3;
-    weatherScores["home performance with Energy Star"] += 2;
-    weatherScores["smart thermostat"] += 1;
+    scores["heat pump water heater"] += 3;
+    scores["home performance with Energy Star"] += 2;
+    scores["smart thermostat"] += 1;
   }
   if (weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm")) {
-    weatherScores["dehumidifier"] += 3;
-    weatherScores["quick home energy check-up"] += 1;
+    scores["dehumidifier"] += 3;
+    scores["quick home energy check-up"] += 1;
   }
   if (weatherLower.includes("clear") || weatherLower.includes("sun")) {
-    weatherScores["solar incentives"] += 3;
-    weatherScores["community solar"] += 2;
-    weatherScores["rooftop solar"] += 2;
+    scores["solar incentives"] += 3;
+    scores["community solar"] += 2;
+    scores["rooftop solar"] += 2;
   }
   if (weatherLower.includes("wind")) {
-    weatherScores["appliance recycling"] += 1;
+    scores["appliance recycling"] += 1;
   }
 
   // Neighborhood-based weighting (less weight)
@@ -64,24 +63,19 @@ function recommendBGEProduct({ weather, temp, neighborhoodHighlights = [] }: { w
     "residential": ["quick home energy check-up"],
     "diverse community": ["community solar"]
   };
-  for (const h of neighborhoodHighlights) {
-    for (const [key, products] of Object.entries(highlightMap)) {
-      if (h.toLowerCase().includes(key)) {
-        products.forEach(p => weatherScores[p] += 1); // less weight
-      }
-    }
-  }
 
-  // Pick the product with the highest score
-  let bestProduct = BGE_PRODUCTS[0];
-  let bestScore = weatherScores[bestProduct];
-  for (const p of BGE_PRODUCTS) {
-    if (weatherScores[p] > bestScore) {
-      bestProduct = p;
-      bestScore = weatherScores[p];
-    }
-  }
-  return bestProduct;
+  // Flatten highlights and update scores in a single pass
+  neighborhoodHighlights.forEach(h => {
+    const hLower = h.toLowerCase();
+    Object.entries(highlightMap).forEach(([key, products]) => {
+      if (hLower.includes(key)) {
+        products.forEach(p => { scores[p] += 1; });
+      }
+    });
+  });
+
+  // Find the product with the highest score
+  return Object.entries(scores).reduce((best, curr) => curr[1] > best[1] ? curr : best)[0];
 }
 
 export async function POST(req: NextRequest) {
