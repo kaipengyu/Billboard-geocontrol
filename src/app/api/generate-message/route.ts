@@ -71,30 +71,129 @@ export async function POST(req: NextRequest) {
 
     // Baltimore zip code mapping
     const zipMapping = [
-      { zip_code: "21201", neighborhood: ["Downtown", "Mount Vernon", "Seton Hill"], highlight: ["historic", "cultural landmarks", "arts", "education", "diverse community"] },
-      { zip_code: "21202", neighborhood: ["Inner Harbor", "Little Italy", "Jonestown"], highlight: ["waterfront", "tourism", "dining", "nightlife", "Italian-American community"] },
-      { zip_code: "21205", neighborhood: ["Middle East", "Milton-Montford", "Madison-Eastend"], highlight: ["Johns Hopkins", "medical", "revitalization", "development", "African-American community"] },
-      { zip_code: "21206", neighborhood: ["Frankford", "Waltherson", "Cedonia"], highlight: ["residential", "parks", "community", "diverse housing", "African-American community"] },
-      { zip_code: "21209", neighborhood: ["Mount Washington", "Cheswolde", "Cross Keys"], highlight: ["suburban", "shopping", "recreation", "Jones Falls Trail", "Jewish community"] },
-      { zip_code: "21210", neighborhood: ["Roland Park", "Wyndhurst", "Tuscany-Canterbury"], highlight: ["historic homes", "tree-lined", "Johns Hopkins", "university proximity", "affluent community"] },
-      { zip_code: "21211", neighborhood: ["Hampden", "Medfield", "Remington"], highlight: ["arts", "shops", "festivals", "HonFest", "creative community"] },
-      { zip_code: "21212", neighborhood: ["Homeland", "Govans", "Mid-Govans"], highlight: ["historic homes", "education", "shopping", "residential mix", "diverse community"] },
-      { zip_code: "21213", neighborhood: ["Belair-Edison", "Clifton Park", "Broadway East"], highlight: ["parks", "residential", "African-American community", "revitalization"] },
-      { zip_code: "21214", neighborhood: ["Hamilton", "Lauraville"], highlight: ["arts", "residential", "gardening", "family-friendly", "diverse community"] },
-      { zip_code: "21215", neighborhood: ["Park Heights", "Pimlico", "Arlington"], highlight: ["Pimlico Race Course", "African-American community", "revitalization", "residential"] },
-      { zip_code: "21216", neighborhood: ["Walbrook", "Forest Park", "Hanlon-Longwood"], highlight: ["historic", "residential", "African-American community", "parks"] },
-      { zip_code: "21217", neighborhood: ["Druid Hill Park", "Reservoir Hill", "Bolton Hill"], highlight: ["parks", "historic homes", "arts", "diverse community"] },
-      { zip_code: "21218", neighborhood: ["Waverly", "Charles Village", "Barclay"], highlight: ["Johns Hopkins University", "education", "arts", "diverse community"] },
-      { zip_code: "21223", neighborhood: ["Poppleton", "Union Square", "Hollins Market"], highlight: ["historic", "African-American community", "revitalization", "residential"] },
-      { zip_code: "21224", neighborhood: ["Highlandtown", "Canton", "Brewers Hill"], highlight: ["arts", "dining", "Polish-American community", "revitalization"] },
-      { zip_code: "21225", neighborhood: ["Brooklyn", "Cherry Hill", "Curtis Bay"], highlight: ["industrial", "African-American community", "residential", "revitalization"] },
-      { zip_code: "21226", neighborhood: ["Curtis Bay", "Hawkins Point"], highlight: ["industrial", "port", "residential", "revitalization"] },
-      { zip_code: "21229", neighborhood: ["Irvington", "Beechfield", "Saint Josephs"], highlight: ["residential", "parks", "diverse community", "revitalization"] },
-      { zip_code: "21230", neighborhood: ["Federal Hill", "Locust Point", "Riverside"], highlight: ["waterfront", "historic", "young professionals", "dining", "Irish-American community"] },
-      { zip_code: "21231", neighborhood: ["Fells Point", "Upper Fells Point", "Butchers Hill"], highlight: ["historic", "waterfront", "dining", "arts", "diverse community"] },
-      { zip_code: "21239", neighborhood: ["Loch Raven", "Northwood", "Perring Loch"], highlight: ["residential", "education", "parks", "African-American community"] },
-      { zip_code: "21251", neighborhood: ["Morgan State University"], highlight: ["education", "African-American community", "university"] },
-      { zip_code: "21287", neighborhood: ["Johns Hopkins Hospital"], highlight: ["medical", "education", "research", "diverse community"] }
+
+  {
+    "zip_code": "21201",
+    "neighborhood": ["Downtown", "Mount Vernon", "Seton Hill"],
+    "highlight": ["historic", "cultural landmarks", "arts", "education", "diverse community"]
+  },
+  {
+    "zip_code": "21202",
+    "neighborhood": ["Inner Harbor", "Little Italy", "Jonestown"],
+    "highlight": ["waterfront", "tourism", "dining", "nightlife", "Italian-American community"]
+  },
+  {
+    "zip_code": "21205",
+    "neighborhood": ["Middle East", "Milton-Montford", "Madison-Eastend"],
+    "highlight": ["Johns Hopkins", "medical", "revitalization", "development", "African-American community"]
+  },
+  {
+    "zip_code": "21206",
+    "neighborhood": ["Frankford", "Waltherson", "Cedonia"],
+    "highlight": ["residential", "parks", "community", "diverse housing", "African-American community"]
+  },
+  {
+    "zip_code": "21209",
+    "neighborhood": ["Mount Washington", "Cheswolde", "Cross Keys"],
+    "highlight": ["suburban", "shopping", "recreation", "Jones Falls Trail", "Jewish community"]
+  },
+  {
+    "zip_code": "21210",
+    "neighborhood": ["Roland Park", "Wyndhurst", "Tuscany-Canterbury"],
+    "highlight": ["historic homes", "tree-lined", "Johns Hopkins", "university proximity", "affluent community"]
+  },
+  {
+    "zip_code": "21211",
+    "neighborhood": ["Hampden", "Medfield", "Remington"],
+    "highlight": ["arts", "shops", "festivals", "HonFest", "creative community"]
+  },
+  {
+    "zip_code": "21212",
+    "neighborhood": ["Homeland", "Govans", "Mid-Govans"],
+    "highlight": ["historic homes", "education", "shopping", "residential mix", "diverse community"]
+  },
+  {
+    "zip_code": "21213",
+    "neighborhood": ["Belair-Edison", "Clifton Park", "Broadway East"],
+    "highlight": ["parks", "residential", "African-American community", "revitalization"]
+  },
+  {
+    "zip_code": "21214",
+    "neighborhood": ["Hamilton", "Lauraville"],
+    "highlight": ["arts", "residential", "gardening", "family-friendly", "diverse community"]
+  },
+  {
+    "zip_code": "21215",
+    "neighborhood": ["Park Heights", "Pimlico", "Arlington"],
+    "highlight": ["Pimlico Race Course", "African-American community", "revitalization", "residential"]
+  },
+  {
+    "zip_code": "21216",
+    "neighborhood": ["Walbrook", "Forest Park", "Hanlon-Longwood"],
+    "highlight": ["historic", "residential", "African-American community", "parks"]
+  },
+  {
+    "zip_code": "21217",
+    "neighborhood": ["Druid Hill Park", "Reservoir Hill", "Bolton Hill"],
+    "highlight": ["parks", "historic homes", "arts", "diverse community"]
+  },
+  {
+    "zip_code": "21218",
+    "neighborhood": ["Waverly", "Charles Village", "Barclay"],
+    "highlight": ["Johns Hopkins University", "education", "arts", "diverse community"]
+  },
+  {
+    "zip_code": "21223",
+    "neighborhood": ["Poppleton", "Union Square", "Hollins Market"],
+    "highlight": ["historic", "African-American community", "revitalization", "residential"]
+  },
+  {
+    "zip_code": "21224",
+    "neighborhood": ["Highlandtown", "Canton", "Brewers Hill"],
+    "highlight": ["arts", "dining", "Polish-American community", "revitalization"]
+  },
+  {
+    "zip_code": "21225",
+    "neighborhood": ["Brooklyn", "Cherry Hill", "Curtis Bay"],
+    "highlight": ["industrial", "African-American community", "residential", "revitalization"]
+  },
+  {
+    "zip_code": "21226",
+    "neighborhood": ["Curtis Bay", "Hawkins Point"],
+    "highlight": ["industrial", "port", "residential", "revitalization"]
+  },
+  {
+    "zip_code": "21229",
+    "neighborhood": ["Irvington", "Beechfield", "Saint Josephs"],
+    "highlight": ["residential", "parks", "diverse community", "revitalization"]
+  },
+  {
+    "zip_code": "21230",
+    "neighborhood": ["Federal Hill", "Locust Point", "Riverside"],
+    "highlight": ["waterfront", "historic", "young professionals", "dining", "Irish-American community"]
+  },
+  {
+    "zip_code": "21231",
+    "neighborhood": ["Fells Point", "Upper Fells Point", "Butchers Hill"],
+    "highlight": ["historic", "waterfront", "dining", "arts", "diverse community"]
+  },
+  {
+    "zip_code": "21239",
+    "neighborhood": ["Loch Raven", "Northwood", "Perring Loch"],
+    "highlight": ["residential", "education", "parks", "African-American community"]
+  },
+   {
+        "zip_code": "21251",
+        "neighborhood": ["Morgan State University"],
+        "highlight": ["education", "African-American community", "university"]
+      },
+      {
+        "zip_code": "21287",
+        "neighborhood": ["Johns Hopkins Hospital"],
+        "highlight": ["medical", "education", "research", "diverse community"]
+      }
+
+
     ];
     let neighborhoodInfo = '';
     let match;
