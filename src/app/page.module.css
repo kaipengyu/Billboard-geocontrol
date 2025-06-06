@@ -188,6 +188,13 @@ a.secondary {
   .billboardContainer {
     width: 95vw;
     height: auto;
+    min-height: none !important;
+    max-height: none !important;
+    margin: 2rem 0;
+    padding: 1rem !important;
+  }
+  .billboard {
+    padding: 1rem 0 !important;
   }
 }
 
@@ -273,6 +280,11 @@ a.secondary {
   font-weight: 600;
   text-decoration: underline;
 }
+@media (max-width: 600px) {
+  .brand-link {
+    font-size: 1rem;
+  }
+}
 
 .brand-bge {
   height: 48px;
@@ -310,6 +322,13 @@ a.secondary {
     width: 70px;
     height: 70px;
   }
+  .messageBox {
+    font-size: 2.5rem;
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 600px) {
   .messageBox {
     font-size: 2rem;
     padding: 1.2rem;
