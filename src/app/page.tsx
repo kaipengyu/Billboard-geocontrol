@@ -6,12 +6,10 @@ export default function Home() {
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
-  const watcherRef = useRef<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extracted fetch logic
   const fetchMessage = (position: GeolocationPosition) => {
-    console.log('fetchMessage called with position:', position);
     setLoading(true);
     setError("");
     fetch("/api/generate-message", {
@@ -26,7 +24,6 @@ export default function Home() {
         const data = await res.json();
         if (res.ok) {
           setMessage(data.message);
-          console.log('Message updated:', data.message);
         } else {
           setError(data.error || "Failed to generate message.");
         }
@@ -45,20 +42,10 @@ export default function Home() {
       setLoading(false);
       return;
     }
-    // Initial fetch and watcher
-    watcherRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        fetchMessage(position);
-      },
-      () => {
-        setError("Unable to retrieve your location.");
-        setLoading(false);
-      }
-    );
 
-    // Soft refresh every 30 seconds
-    intervalRef.current = setInterval(() => {
-      console.log('Interval fired, fetching current position...');
+    // Function to get geolocation and fetch message
+    const getGeoAndFetch = () => {
+      setLoading(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           fetchMessage(position);
@@ -68,12 +55,17 @@ export default function Home() {
           setLoading(false);
         }
       );
-    }, 30000); // 30 seconds
+    };
+
+    // Initial fetch
+    getGeoAndFetch();
+
+    // Set interval to fetch every 60 seconds
+    intervalRef.current = setInterval(() => {
+      getGeoAndFetch();
+    }, 60000); // 60 seconds
 
     return () => {
-      if (watcherRef.current !== null) {
-        navigator.geolocation.clearWatch(watcherRef.current);
-      }
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
       }
