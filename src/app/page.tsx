@@ -74,28 +74,30 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <h1 style={{ fontSize: "3rem", textAlign: "center", margin: "2rem 0" }}>
-          Smart Billboard
-        </h1>
-        {loading && <p style={{ fontSize: "2rem" }}>Loading...</p>}
-        {error && <p style={{ color: "red", fontSize: "2rem" }}>{error}</p>}
-        {!loading && !error && (
-          <div style={{
-            fontSize: "2.5rem",
-            fontWeight: "bold",
-            background: "rgba(255,255,255,0.8)",
-            borderRadius: "1rem",
-            padding: "2rem",
-            boxShadow: "0 4px 24px rgba(0,0,0,0.1)",
-            textAlign: "center",
-            maxWidth: "900px",
-            margin: "0 auto"
-          }}>
-            {message}
+      <div className={styles.billboardContainer}>
+        <div className={styles.billboard}>
+          {loading && <p className={styles.messageBox}>Loading BGE Message...</p>}
+          {error && <p className={styles.error}>{error}</p>}
+          {!loading && !error && (
+            <div className={styles.messageBox}>{message}</div>
+          )}
+        </div>
+        <footer className={styles["brand-footer"]}>
+          <div className={styles["brand-left"]}>
+            <img src="/image/qr-code.png" alt="QR code" className={styles.qr} />
+            <div className={styles["brand-info"]}>
+              <span>Schedule a Home Energy Check-up with BGE.</span>
+              <a href="https://bgesmartenergy.com" target="_blank" rel="noopener noreferrer" className={styles["brand-link"]}>
+                bgesmartenergy.com
+              </a>
+            </div>
           </div>
-        )}
-      </main>
+          <div>
+            <img src="/image/main-logo-bge.svg" alt="BGE logo" className={styles["brand-bge"]} />
+            <img src="/image/empower-maryland.svg" alt="Empower Maryland logo" className={styles["brand-empower"]} />
+          </div>
+        </footer>
+      </div>
     </div>
   );
 }

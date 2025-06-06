@@ -11,6 +11,7 @@
   align-items: center;
   justify-items: center;
   min-height: 100svh;
+  background-color: #eeeeee;
   padding: 80px;
   gap: 64px;
   font-family: var(--font-geist-sans);
@@ -164,5 +165,153 @@ a.secondary {
 @media (prefers-color-scheme: dark) {
   .logo {
     filter: invert();
+  }
+}
+
+.billboardContainer {
+  max-width: 1600px;
+  max-height: 1000px;
+  width: 80vw;
+  height: 70vh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: none;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+}
+@media (max-width: 600px) {
+  .billboardContainer {
+    width: 95vw;
+    height: auto;
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.billboard {
+  width: 100%;
+  min-height: unset;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.brand-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2vw 2vw 2vw;
+  position: static;
+  bottom: unset;
+  left: unset;
+  box-sizing: border-box;
+  margin-top: auto;
+}
+
+.messageBox {
+  font-size: 3.5rem;
+  font-weight: bold;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: left;
+  max-width: 1100px;
+  margin-bottom: 2.5rem;
+  color: #181871;
+}
+
+.loading,
+.error {
+  font-size: 2rem;
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  text-align: left;
+  max-width: 900px;
+}
+
+.error {
+  color: red;
+}
+
+.brand-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.qr {
+  width: 90px;
+  height: 90px;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.brand-link {
+  color: #3a4fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.brand-bge {
+  height: 48px;
+  margin-right: 2.5rem;
+}
+
+.brand-empower {
+  height: 48px;
+}
+
+@media (max-width: 1700px) {
+  .billboardContainer {
+    max-width: 98vw;
+    max-height: 90vh;
+  }
+}
+
+@media (max-width: 900px) {
+  .billboardContainer {
+    max-width: 100vw;
+    max-height: 100vh;
+    padding: 2rem;
+  }
+  .brand-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding: 2rem 1vw 1vw 1vw;
+  }
+  .brand-bge, .brand-empower {
+    height: 36px;
+    margin-right: 1rem;
+  }
+  .qr {
+    width: 70px;
+    height: 70px;
+  }
+  .messageBox {
+    font-size: 2rem;
+    padding: 1.2rem;
   }
 }
