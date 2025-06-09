@@ -225,7 +225,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate message using OpenAI
-    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 20 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo} Recommend the BGE program: ${recommendedProduct}. `;
+    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 15 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo} Recommend the BGE program: ${recommendedProduct}. `;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -244,7 +244,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to generate message' }, { status: 500 });
     }
 
-    const message = aiData.choices?.[0]?.message?.content?.trim() || 'Welcome!';
+    const messageRaw = aiData.choices?.[0]?.message?.content?.trim() || 'Welcome!';
+    // Remove leading/trailing quotes (single or double)
+    let message = messageRaw.replace(/^['"]+|['"]+$/g, '');
+    // Replace all straight single quotes with curly right single quote
+    message = message.replace(/'/g, '’');
     return NextResponse.json({ message });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
