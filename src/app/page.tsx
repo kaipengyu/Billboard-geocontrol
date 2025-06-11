@@ -6,6 +6,7 @@ export default function Home() {
   const [message, setMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const [theme, setTheme] = useState<'default' | 'purple'>("purple");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extracted fetch logic
@@ -73,8 +74,13 @@ export default function Home() {
   }, []);
 
   return (
+    <>
     <div className={styles.page}>
-      <div className={styles.billboardContainer}>
+      <div className={
+        theme === 'purple'
+          ? `${styles.billboardContainer} ${styles['purple-theme']}`
+          : styles.billboardContainer
+      }>
         <div className={styles.billboard}>
           {loading && <p className={styles.messageBox}>Loading BGE Message...</p>}
           {error && <p className={styles.error}>{error}</p>}
@@ -82,9 +88,10 @@ export default function Home() {
             <div className={styles.messageBox}>{message}</div>
           )}
         </div>
+
         <footer className={styles["brand-footer"]}>
           <div className={styles["brand-left"]}>
-            <img src="/image/qr-code.png" alt="QR code" className={styles.qr} />
+            <img src={theme === 'purple' ? '/image/qr-code-white.png' : '/image/qr-code.png'} alt="QR code" className={styles.qr} />
             <div className={styles["brand-info"]}>
               <span>Schedule a Home Energy Check-up with BGE.</span>
               <a href="https://bgesmartenergy.com" target="_blank" rel="noopener noreferrer" className={styles["brand-link"]}>
@@ -92,12 +99,40 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div>
-            <img src="/image/main-logo-bge.svg" alt="BGE logo" className={styles["brand-bge"]} />
-            <img src="/image/empower-maryland.svg" alt="Empower Maryland logo" className={styles["brand-empower"]} />
+          <div className={styles["brand-logos-vertical"]}>
+            <img src={theme === 'purple' ? '/image/bge-reverse.svg' : '/image/main-logo-bge.svg'} alt="BGE logo" className={styles["brand-bge"]} />
+            <img src={theme === 'purple' ? '/image/empower-maryland-reverse.svg' : '/image/empower-maryland.svg'} alt="Empower Maryland logo" className={styles["brand-empower"]} />
           </div>
         </footer>
       </div>
+
+                  {/* Theme Toggle Button */}
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '1rem 0' }}>
+          <button
+            onClick={() => setTheme(theme === 'default' ? 'purple' : 'default')}
+            style={{
+              padding: '0.5rem 1.5rem',
+              borderRadius: '1rem',
+              border: 'none',
+              background: theme === 'purple' ? '#7c3aed' : '#e0e0e0',
+              color: theme === 'purple' ? '#fff' : '#333',
+              fontWeight: 600,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+              transition: 'background 0.2s, color 0.2s',
+              marginBottom: '2rem',
+            }}
+            aria-pressed={theme === 'purple'}
+          >
+            {theme === 'purple' ? 'Switch to Light Theme' : 'Switch to BGE Theme'}
+          </button>
+        </div>
+
+
     </div>
+
+
+        </>
   );
 }

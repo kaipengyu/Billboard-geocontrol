@@ -5,54 +5,114 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
 
-// Baltimore zip code mapping: each zip code maps to 3 products
-const zipProductMapping: Record<string, [string, string, string]> = {
-  "21201": ["smart thermostat", "appliance recycling", "community solar"],
-  "21202": ["connected rewards", "solar incentives", "quick home energy check-up"],
-  "21205": ["home performance with Energy Star", "heat pump water heater", "appliance recycling"],
-  "21206": ["quick home energy check-up", "dehumidifier", "community solar"],
-  "21209": ["solar incentives", "smart thermostat", "EVsmart"],
-  "21210": ["community solar", "appliance recycling", "solar incentives"],
-  "21211": ["community solar", "quick home energy check-up", "appliance recycling"],
-  "21212": ["home performance with Energy Star", "smart thermostat", "community solar"],
-  "21213": ["quick home energy check-up", "appliance recycling", "dehumidifier"],
-  "21214": ["community solar", "quick home energy check-up", "appliance recycling"],
-  "21215": ["appliance recycling", "quick home energy check-up", "smart thermostat"],
-  "21216": ["appliance recycling", "dehumidifier", "community solar"],
-  "21217": ["community solar", "appliance recycling", "solar incentives"],
-  "21218": ["home performance with Energy Star", "community solar", "smart thermostat"],
-  "21223": ["appliance recycling", "quick home energy check-up", "dehumidifier"],
-  "21224": ["solar incentives", "connected rewards", "community solar"],
-  "21225": ["appliance recycling", "quick home energy check-up", "community solar"],
-  "21226": ["appliance recycling", "community solar", "quick home energy check-up"],
-  "21229": ["quick home energy check-up", "community solar", "appliance recycling"],
-  "21230": ["smart thermostat", "connected rewards", "solar incentives"],
-  "21231": ["community solar", "solar incentives", "appliance recycling"],
-  "21239": ["quick home energy check-up", "home performance with Energy Star", "community solar"],
-  "21251": ["home performance with Energy Star", "community solar", "appliance recycling"],
-  "21287": ["home performance with Energy Star", "appliance recycling", "community solar"]
+// Baltimore zip code mapping: each zip code maps to 3 programs (hot, cold, normal)
+const zipProgramMapping: Record<string, { hot: string, cold: string, normal: string }> = {
+  "21201": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
+  "21202": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
+  "21205": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21206": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
+  "21209": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
+  "21210": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
+  "21211": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
+  "21212": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21213": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
+  "21214": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
+  "21215": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
+  "21216": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
+  "21217": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21218": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
+  "21223": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
+  "21224": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
+  "21225": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
+  "21226": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21229": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
+  "21230": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
+  "21231": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
+  "21239": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
+  "21251": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21287": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" }
 };
 
-// Recommendation algorithm: pick product based on weather
-function recommendBGEProduct({ zipCode, weather, temp }: { zipCode: string, weather: string, temp: number }) {
-  const products = zipProductMapping[zipCode] || [
-    "quick home energy check-up",
-    "smart thermostat",
-    "community solar"
-  ];
-  const weatherLower = weather.toLowerCase();
+// Key talking points for each program
+const talkingPointsMapping: Record<string, string[]> = {
+  "Quick Home Energy Checkup": [
+    "No additional cost check-up",
+    "Installation of free energy-saving products",
+    "Installation of free Smart Thermostat",
+    "Installation of free LEDs",
+    "Learn ways to save with personalized recommendations",
+    "Personalized energy-saving report"
+  ],
+  "Home Performance": [
+    "Whole-home energy audit",
+    "Audit will show you ways to save that work for you",
+    "Average of $3000 in rebates for home improvement work",
+    "Cut home energy",
+    "Increase comfort",
+    "Follow-up support post audit",
+    "Up to $10,000 in rebates",
+    "$15,000 in rebates with electrification"
+  ],
+  "Appliance Rebates": [
+    "Rebates up to $1,600 for energy-efficient appliances",
+    "Covers heat pump water heaters ($1,600)",
+    "Covers smart thermostats (up to $100)",
+    "Covers dehumidifiers ($50)",
+    "Up to $2,000 for HPWHs",
+    "75% of the cost up to $3,000 to prepare home for electrification"
+  ],
+  "Appliance Recycling": [
+    "$50 reward for old, working fridge or freezer",
+    "$25 more when recycling mini fridge at the same time",
+    "$25 more when recycling dehumidifier at the same time",
+    "$25 more when recycling room a/c at the same time",
+    "No additional cost pickup",
+    "Hassle-free pickup",
+    "Indoor and outdoor pickup",
+  ],
+  "HVAC Tune Up": [
+    "Savings on energy-efficient systems",
+    "Additional incentives for electrification",
+    "75% of cost up to $3,000 to prepare home for installation",
+    "Test system to ensure it's running at peak performance",
+    "Increases efficiency",
+    "Increases system lifespan",
+    "No additional cost",
+    "Includes smart thermostat, if eligible"
+  ],
+  "Peak Rewards": [
+    "Bill credits for AC cycling during peak events",
+    "Supports grid reliability",
+    "Smart thermostat integration"
+  ],
+  "Smart Energy Rewards": [
+    "Earn bill credits on Energy Savings Days",
+    "Notifications sent in advance",
+    "Easy participation via BGE account"
+  ]
+};
 
-  if ((weatherLower.includes("sun") || weatherLower.includes("clear")) && products.some(p => p.includes("solar"))) {
-    return products.find(p => p.includes("solar"))!;
-  } else if ((weatherLower.includes("rain") || weatherLower.includes("humid") || weatherLower.includes("storm")) && products.some(p => p.includes("dehumidifier"))) {
-    return products.find(p => p.includes("dehumidifier"))!;
-  } else if (weatherLower.includes("hot") || temp > 80) {
-    return products[0];
-  } else if (weatherLower.includes("cold") || temp < 50) {
-    return products[1];
-  } else {
-    return products[2];
+// Recommendation algorithm: 70/30 split between weather/normal programs and Quick Home Energy Checkup/Home Performance
+function recommendBGEProduct({ zipCode, weather, temp }: { zipCode: string, weather: string, temp: number }) {
+  const programs = zipProgramMapping[zipCode] || {
+    hot: "Appliance Rebates",
+    cold: "Home Performance",
+    normal: "Peak Rewards"
+  };
+  const weatherLower = weather.toLowerCase();
+  const rand = Math.random();
+  const quickOrHome = Math.random() < 0.5 ? "Quick Home Energy Checkup" : "Home Performance";
+
+  if (weatherLower.includes("hot") || temp > 80) {
+    // 70% hot program, 30% Quick Home Energy Checkup/Home Performance
+    return rand < 0.7 ? programs.hot : quickOrHome;
   }
+  if (weatherLower.includes("cold") || temp < 50) {
+    // 70% cold program, 30% Quick Home Energy Checkup/Home Performance
+    return rand < 0.7 ? programs.cold : quickOrHome;
+  }
+  // Otherwise: 70% Quick Home Energy Checkup/Home Performance, 30% normal program
+  return rand < 0.7 ? quickOrHome : programs.normal;
 }
 
 export async function POST(req: NextRequest) {
@@ -200,7 +260,9 @@ export async function POST(req: NextRequest) {
     if (zipCode) {
       match = zipMapping.find(z => z.zip_code === zipCode);
       if (match) {
-        neighborhoodInfo = `Neighborhoods: ${match.neighborhood.join(", ")}. Highlights: ${match.highlight.join(", ")}.`;
+        const neighborhoods = match.neighborhood;
+        const randomNeighborhood = neighborhoods[Math.floor(Math.random() * neighborhoods.length)];
+        neighborhoodInfo = `Neighborhood: ${randomNeighborhood}. Highlights: ${match.highlight.join(", ")}.`;
       }
     }
 
@@ -224,8 +286,15 @@ export async function POST(req: NextRequest) {
       temp
     });
 
+    // Get talking points for the recommended product
+    const talkingPoints = talkingPointsMapping[recommendedProduct] || [];
+    let selectedTalkingPoint = '';
+    if (talkingPoints.length > 0) {
+      selectedTalkingPoint = talkingPoints[Math.floor(Math.random() * talkingPoints.length)];
+    }
+
     // Generate message using OpenAI
-    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 15 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo} Recommend the BGE program: ${recommendedProduct}. `;
+    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 20 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo} Recommend the BGE program: ${recommendedProduct}. You must include this talking point: ${selectedTalkingPoint}`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
