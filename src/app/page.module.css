@@ -172,7 +172,7 @@ a.secondary {
   max-width: 1600px;
   max-height: 1000px;
   width: 80vw;
-  min-height: 70vh;
+  min-height: 75vh;
   margin: auto;
   display: flex;
   flex-direction: column;
