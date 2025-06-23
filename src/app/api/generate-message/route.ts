@@ -9,27 +9,27 @@ const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 const zipProgramMapping: Record<string, { hot: string, cold: string, normal: string }> = {
   "21201": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
   "21202": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
-  "21205": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21205": { hot: "HVAC Tune-up", cold: "Home Performance", normal: "Peak Rewards" },
   "21206": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
   "21209": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
   "21210": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
   "21211": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
-  "21212": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21212": { hot: "HVAC Tune-up", cold: "Home Performance", normal: "Peak Rewards" },
   "21213": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
   "21214": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
   "21215": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
   "21216": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
-  "21217": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21217": { hot: "HVAC Tune-up", cold: "Home Performance", normal: "Peak Rewards" },
   "21218": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
   "21223": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
   "21224": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
   "21225": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
-  "21226": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21226": { hot: "HVAC Tune-up", cold: "Home Performance", normal: "Peak Rewards" },
   "21229": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" },
   "21230": { hot: "Smart Energy Rewards", cold: "Home Performance", normal: "Appliance Rebates" },
   "21231": { hot: "Appliance Rebates", cold: "Home Performance", normal: "Peak Rewards" },
   "21239": { hot: "Appliance Recycling", cold: "Home Performance", normal: "Peak Rewards" },
-  "21251": { hot: "HVAC Tune Up", cold: "Home Performance", normal: "Peak Rewards" },
+  "21251": { hot: "HVAC Tune-up", cold: "Home Performance", normal: "Peak Rewards" },
   "21287": { hot: "Peak Rewards", cold: "Home Performance", normal: "Smart Energy Rewards" }
 };
 
@@ -58,7 +58,7 @@ const talkingPointsMapping: Record<string, string[]> = {
     "Covers heat pump water heaters ($1,600)",
     "Covers smart thermostats (up to $100)",
     "Covers dehumidifiers ($50)",
-    "Up to $2,000 for HPWHs",
+    "Up to $2,000 for Heat pump water heaters",
     "75% of the cost up to $3,000 to prepare home for electrification"
   ],
   "Appliance Recycling": [
@@ -70,7 +70,7 @@ const talkingPointsMapping: Record<string, string[]> = {
     "Hassle-free pickup",
     "Indoor and outdoor pickup",
   ],
-  "HVAC Tune Up": [
+  "HVAC Tune-up": [
     "Savings on energy-efficient systems",
     "Additional incentives for electrification",
     "75% of cost up to $3,000 to prepare home for installation",
@@ -294,7 +294,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate message using OpenAI
-    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 20 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo} Recommend the BGE program: ${recommendedProduct}. You must include this talking point: ${selectedTalkingPoint}`;
+    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 10 words for people passing by, using this info: location: ${location}, weather: ${weather}, ${neighborhoodInfo}. Do not mention BGE or any program. Only generate a general greeting or observation.`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -318,6 +318,12 @@ export async function POST(req: NextRequest) {
     let message = messageRaw.replace(/^['"]+|['"]+$/g, '');
     // Replace all straight single quotes with curly right single quote
     message = message.replace(/'/g, '’');
+    // Append the strict talking point as a new sentence
+    if (selectedTalkingPoint) {
+      message = message.trim();
+      if (!/[.!?]$/.test(message)) message += '.';
+      message += ' ' + selectedTalkingPoint;
+    }
     return NextResponse.json({ message });
   } catch {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
