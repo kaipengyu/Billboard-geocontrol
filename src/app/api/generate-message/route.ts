@@ -226,7 +226,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate message using OpenAI
-    const prompt = `You are a smart billboard. Create a catchy, friendly sentence less than 8 words for people passing by, using this info: location: ${location}, ${neighborhoodInfo}. Do not mention BGE or any program. Only generate a general greeting or observation.`;
+    const prompt = `You are a smart billboard. Create a warm, friendly greeting or observation (less than 8 words) for people passing by, using this info: location: ${location}, ${neighborhoodInfo}. Do not mention BGE or any program. Do not use phrases like 'Welcome to' or anything that implies the audience is a visitor. Avoid slogans, taglines, or advertisements. Make it sound like a genuine, casual greeting or observation for anyone in the area.`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
