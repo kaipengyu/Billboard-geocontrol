@@ -4,6 +4,13 @@ import { NextRequest, NextResponse } from 'next/server';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const WEATHER_API_KEY = process.env.WEATHER_API_KEY;
 
+// Predefined location coordinates
+const predefinedLocations: Record<string, { latitude: number; longitude: number }> = {
+  'nyc': { latitude: 40.7128, longitude: -74.0060 },
+  'sf': { latitude: 37.7749, longitude: -122.4194 },
+  'baltimore': { latitude: 39.2904, longitude: -76.6122 }
+};
+
 
 // talking points based on weather
 const weatherTalkingPointsMapping: Record<string, string[]> = {
@@ -58,9 +65,27 @@ function getWeatherCategory({ weather, temp }: { weather: string, temp: number }
 
 export async function POST(req: NextRequest) {
   try {
-    const { latitude, longitude } = await req.json();
-    if (!latitude || !longitude) {
-      return NextResponse.json({ error: 'Missing latitude or longitude' }, { status: 400 });
+    // Check for location parameter in URL
+    const url = new URL(req.url);
+    const locationParam = url.searchParams.get('location');
+    
+    let latitude: number;
+    let longitude: number;
+    
+    if (locationParam && predefinedLocations[locationParam.toLowerCase()]) {
+      // Use predefined location coordinates
+      const coords = predefinedLocations[locationParam.toLowerCase()];
+      latitude = coords.latitude;
+      longitude = coords.longitude;
+    } else {
+      // Use coordinates from request body
+      const body = await req.json();
+      latitude = body.latitude;
+      longitude = body.longitude;
+      
+      if (!latitude || !longitude) {
+        return NextResponse.json({ error: 'Missing latitude or longitude' }, { status: 400 });
+      }
     }
 
     // Reverse geocode to get zip code using Nominatim

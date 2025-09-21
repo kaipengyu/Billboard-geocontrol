@@ -10,16 +10,36 @@ export default function Home() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extracted fetch logic
-  const fetchMessage = (position: GeolocationPosition) => {
+  const fetchMessage = (position?: GeolocationPosition) => {
     setLoading(true);
     setError("");
-    fetch("/api/generate-message", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
-      body: JSON.stringify({
+    
+    // Check for location parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const locationParam = urlParams.get('location');
+    
+    let fetchUrl = "/api/generate-message";
+    let requestBody = {};
+    
+    if (locationParam) {
+      // Use location parameter
+      fetchUrl += `?location=${locationParam}`;
+    } else if (position) {
+      // Use geolocation
+      requestBody = {
         latitude: position.coords.latitude,
         longitude: position.coords.longitude,
-      }),
+      };
+    } else {
+      setError("No location available");
+      setLoading(false);
+      return;
+    }
+    
+    fetch(fetchUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+      body: JSON.stringify(requestBody),
     })
       .then(async (res) => {
         const data = await res.json();
@@ -38,33 +58,42 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
-      setLoading(false);
-      return;
-    }
+    // Check for location parameter in URL first
+    const urlParams = new URLSearchParams(window.location.search);
+    const locationParam = urlParams.get('location');
+    
+    if (locationParam) {
+      // Use location parameter, no need for geolocation
+      fetchMessage();
+    } else {
+      // Use geolocation as fallback
+      if (!navigator.geolocation) {
+        setError("Geolocation is not supported by your browser.");
+        setLoading(false);
+        return;
+      }
 
-    // Function to get geolocation and fetch message
-    const getGeoAndFetch = () => {
-      setLoading(true);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchMessage(position);
-        },
-        () => {
-          setError("Unable to retrieve your location.");
-          setLoading(false);
-        }
-      );
-    };
+      // Function to get geolocation and fetch message
+      const getGeoAndFetch = () => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            fetchMessage(position);
+          },
+          () => {
+            setError("Unable to retrieve your location.");
+            setLoading(false);
+          }
+        );
+      };
 
-    // Initial fetch
-    getGeoAndFetch();
-
-    // Set interval to fetch every 60 seconds
-    intervalRef.current = setInterval(() => {
+      // Initial fetch
       getGeoAndFetch();
-    }, 60000); // 60 seconds
+
+      // Set interval to fetch every 60 seconds
+      intervalRef.current = setInterval(() => {
+        getGeoAndFetch();
+      }, 60000); // 60 seconds
+    }
 
     return () => {
       if (intervalRef.current !== null) {
