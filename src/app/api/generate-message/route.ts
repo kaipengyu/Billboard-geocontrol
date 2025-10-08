@@ -53,22 +53,41 @@ export async function POST(req: NextRequest) {
     const humidity = weatherData.main.humidity;
 
     // Generate message using OpenAI with weather and location context
-    const prompt = `You are a friendly smart billboard. Create a warm, friendly message (MUST be less than 25 words) with this structure:
+    const prompt = `You are a creative copywriter for an energy utility campaign.
+Your job is to write short, witty, locally relevant messages using the input.
+The goal is to make the message feel human, surprising, and specific to that location — not like a template.
 
-[Weather reference] + [Suggested activity related to ${location}]
+Location: ${location}
+Weather: ${weatherDescription}, ${temperature}°F (feels like ${feelsLike}°F), ${humidity}% humidity
 
-Weather info:
-- Temperature: ${temperature}°F (feels like ${feelsLike}°F)
-- Conditions: ${weatherDescription}
-- Humidity: ${humidity}%
+Using the location, infer or generate:
+- The city and region
+- A fun, curious, or pop-culture fact about that place (historical, quirky, or even tongue-in-cheek)
+- Optionally reference current weather or air quality, only if it fits naturally
 
-Rules:
-1. First half: Reference the weather naturally (e.g., "On this sunny day", "With the cool breeze", "Perfect weather") - DO NOT state actual temperature numbers
-2. Second half: Suggest an activity that fits the weather AND relates to ${location} (local attractions, neighborhoods, activities)
-3. Keep it conversational and uplifting
-4. NO marketing or promotional content
+Use that local detail as a non-sequitur or witty hook, then pivot naturally to an energy efficiency tip or rebate (e.g., insulation, smart thermostats, HVAC tune-ups, weather stripping, heat pumps, appliance recycling, etc.).
 
-Examples: "Beautiful day in the harbor, time to explore the waterfront!" or "Cool breeze today, perfect for a walk through the park!"`;
+The message should be:
+- 1–2 sentences total
+- Clever, conversational, and human
+- Focused on charm and wit over pure information
+- Lightly persuasive, ending on a relatable energy-savings note
+
+If no strong local fact is found:
+- Use a regional or nearby city reference (e.g., "Northern California," "the Pacific Northwest," "the Midwest")
+- OR use a general regional stereotype or tone cue (e.g., "rainy coast," "desert town," "mountain air")
+- Keep the humor and connection intact — don't fall back to bland weather-based statements
+
+Examples:
+"Your town invented the hula hoop — maybe it's time your thermostat learned a new trick too."
+"Turns out Barstow has more ghost towns than Starbucks — stop haunting that old water heater and upgrade to an efficient one."
+"The world's biggest thermometer is in Baker. A smart thermostat could drop your summer bill by 10%."
+"James Dean filmed his last movie near Cholame — don't let your energy bill go out in a blaze of glory."
+"In the Pacific Northwest, even your rain jacket needs a jacket. Insulate before winter hits."
+
+Output format:
+Location: [City, State]  
+Message: [Final 1–2 sentence witty copy line]`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -91,8 +110,16 @@ Examples: "Beautiful day in the harbor, time to explore the waterfront!" or "Coo
     const aiData = await aiRes.json();
     const messageRaw = aiData.choices?.[0]?.message?.content?.trim() || 'Have a wonderful day!';
     
+    // Extract just the message part from the response format
+    // Expected format: "Location: [City, State]\nMessage: [message text]"
+    let message = messageRaw;
+    const messageMatch = messageRaw.match(/Message:\s*([\s\S]+?)$/i);
+    if (messageMatch) {
+      message = messageMatch[1].trim();
+    }
+    
     // Remove leading/trailing quotes (single or double)
-    let message = messageRaw.replace(/^['"]+|['"]+$/g, '');
+    message = message.replace(/^['"]+|['"]+$/g, '');
     // Replace all straight single quotes with curly right single quote
     message = message.replace(/'/g, '\u2019');
     
