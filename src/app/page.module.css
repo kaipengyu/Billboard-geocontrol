@@ -406,6 +406,7 @@ a.secondary {
   border-radius: 0.75rem;
   font-size: 1.1rem;
   background: white;
+  color: #333;
   transition: border-color 0.3s, box-shadow 0.3s;
   font-weight: 500;
 }
