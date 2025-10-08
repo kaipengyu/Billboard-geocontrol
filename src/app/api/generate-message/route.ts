@@ -49,8 +49,6 @@ export async function POST(req: NextRequest) {
     const location = weatherData.name;
     const temperature = Math.round(weatherData.main.temp);
     const weatherDescription = weatherData.weather[0].description;
-    const feelsLike = Math.round(weatherData.main.feels_like);
-    const humidity = weatherData.main.humidity;
 
     // Generate message using OpenAI with weather and location context
     const prompt = `
@@ -68,6 +66,7 @@ Using the location, infer or generate:
 - The city and region
 - A fun, curious, or pop-culture fact about that place (historical, quirky, or even tongue-in-cheek)
 - Avoid mentioning weather unless it's iconic to the location or creates a truly clever connection
+- Always include a natural or humorous transition that connects the local fact to the energy-efficiency message — use logic, irony, or observation to bridge them smoothly, not as two separate sentences.
 
 Use that local detail as a non-sequitur or witty hook, then pivot naturally to an energy efficiency tip or rebate (e.g., insulation, smart thermostats, HVAC tune-ups, weather stripping, heat pumps, appliance recycling, etc.).
 
