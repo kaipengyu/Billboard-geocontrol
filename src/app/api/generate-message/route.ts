@@ -53,13 +53,16 @@ export async function POST(req: NextRequest) {
     const humidity = weatherData.main.humidity;
 
     // Generate message using OpenAI with weather and location context
-    const prompt = `You are a creative copywriter for an energy utility campaign.
+    const prompt = `
+You are a creative copywriter for an energy utility campaign.
 Your job is to write short, witty, locally relevant messages using the input.
 The goal is to make the message feel human, surprising, and specific to that location — not like a template.
 
 Location: ${location}
 
-IMPORTANT: Your PRIMARY focus should be finding a fun, curious, or pop-culture fact about this place (historical, quirky, or tongue-in-cheek). DO NOT default to weather references.
+IMPORTANT: 
+- Your PRIMARY focus should be finding a fun, curious, or pop-culture fact about this place (historical, quirky, or tongue-in-cheek). DO NOT default to weather references.
+- Write like a smart local with a sense of humor, not a corporate marketer. Prioritize wit, insight, or oddity over symmetry or sales tone. It’s okay if the line feels a little weird — weird is human.
 
 Using the location, infer or generate:
 - The city and region
