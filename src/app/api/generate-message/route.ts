@@ -75,6 +75,7 @@ The message should be:
 - Clever, conversational, and human
 - Focused on charm and wit over pure information
 - Lightly persuasive, ending on a relatable energy-savings note
+- DO NOT use any M-dashes (—) in the message
 
 
 If no strong local fact is found:
