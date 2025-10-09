@@ -82,6 +82,13 @@ export default function Home() {
       const data = await response.json();
       
       if (data && data.length > 0) {
+        // Check if the location is in the US
+        const countryCode = data[0].address?.country_code;
+        if (countryCode && countryCode.toLowerCase() !== 'us') {
+          setError("Please enter a US location only.");
+          return null;
+        }
+        
         return {
           latitude: parseFloat(data[0].lat),
           longitude: parseFloat(data[0].lon)
@@ -182,7 +189,7 @@ export default function Home() {
         fetchMessage(undefined, coords);
       }, 30000); // 30 seconds
     } else {
-      setError("Could not find location. Please try a different zip code or city name.");
+      setError("Could not find location. Please try a different US zip code or city name.");
     }
   };
 
@@ -301,7 +308,7 @@ export default function Home() {
   return (
     <>
     <div className={styles.page}>
-      <div className={`${styles.billboardContainer} ${styles['purple-theme']}`}>
+      <div className={`${styles.billboardContainer} ${styles['purple-theme']} ${error ? styles['error-theme'] : ''}`}>
         <div className={styles.billboard}>
           {loading && <p className={styles.messageBox}>Loading ICF Message...</p>}
           {error && <p className={styles.error}>{error}</p>}
@@ -360,7 +367,7 @@ export default function Home() {
                 disabled={isGeocoding || loading || !manualLocation.trim()}
                 className={styles.locationButton}
               >
-                {isGeocoding ? 'Finding...' : 'Update Location'}
+                {isGeocoding ? 'Finding...' : 'Enter US location'}
               </button>
               {hasManualLocation && (
                 <button

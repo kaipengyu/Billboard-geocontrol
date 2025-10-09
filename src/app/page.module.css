@@ -241,16 +241,18 @@ a.secondary {
 
 .loading,
 .error {
-  font-size: 2.5rem;
+  font-size: 4rem;
+  font-weight: bold;
   border-radius: 1rem;
-  padding: 1.5rem 2rem;
+  padding: 2rem;
   margin-bottom: 2.5rem;
   text-align: left;
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 .error {
-  color: red;
+  background-color: #ffcdd2;
+  color: black;
 }
 
 .brand-left {
@@ -312,14 +314,18 @@ a.secondary {
     width: 70px;
     height: 70px;
   }
-  .messageBox {
+  .messageBox,
+  .loading,
+  .error {
     font-size: 2.5rem;
     padding: 1.2rem;
   }
 }
 
 @media (max-width: 600px) {
-  .messageBox {
+  .messageBox,
+  .loading,
+  .error {
     font-size: 2rem;
     padding: 1.2rem;
   }
@@ -335,6 +341,10 @@ a.secondary {
 
 .purple-theme {
   background: #87ceeb;
+}
+
+.purple-theme.error-theme {
+  background: #ffcdd2;
 }
 .purple-theme .billboard {
   background: none;
