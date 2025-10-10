@@ -230,7 +230,7 @@ a.secondary {
 }
 
 .messageBox {
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: bold;
   border-radius: 1rem;
   padding: 2rem;
@@ -241,7 +241,7 @@ a.secondary {
 
 .loading,
 .error {
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: bold;
   border-radius: 1rem;
   padding: 2rem;

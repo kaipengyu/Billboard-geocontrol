@@ -189,7 +189,8 @@ export default function Home() {
         fetchMessage(undefined, coords);
       }, 30000); // 30 seconds
     } else {
-      setError("Could not find location. Please try a different US zip code or city name.");
+      setError("Could not find location. Please try a different US zip code or city name with state.");
+      setManualLocation("");
     }
   };
 
