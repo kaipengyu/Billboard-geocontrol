@@ -63,36 +63,58 @@ export default function Home() {
   };
 
   // Geocoding function to convert location string to coordinates
-  const geocodeLocation = async (location: string): Promise<{ latitude: number; longitude: number } | null> => {
+  const geocodeLocation = async (location: string): Promise<{ latitude: number; longitude: number; locationName: string } | null> => {
     try {
       setIsGeocoding(true);
       
       // Check if input looks like a US zip code (5 digits)
       const isUSZipCode = /^\d{5}$/.test(location.trim());
       
-      // For US zip codes, always append USA to ensure US-based results
-      const searchQuery = isUSZipCode ? `${location.trim()} USA` : location.trim();
-      
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`,
-        {
-          headers: { 'User-Agent': 'smart-billboard-v2/1.0' }
-        }
-      );
-      const data = await response.json();
-      
-      if (data && data.length > 0) {
-        // Check if the location is in the US
-        const countryCode = data[0].address?.country_code;
-        if (countryCode && countryCode.toLowerCase() !== 'us') {
-          setError("Please enter a US location only.");
-          return null;
-        }
+      if (isUSZipCode) {
+        // For US zip codes, use zippopotam.us API (free, no key required, accurate)
+        const response = await fetch(
+          `https://api.zippopotam.us/us/${location.trim()}`
+        );
         
-        return {
-          latitude: parseFloat(data[0].lat),
-          longitude: parseFloat(data[0].lon)
-        };
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.places && data.places.length > 0) {
+            const place = data.places[0];
+            return {
+              latitude: parseFloat(place.latitude),
+              longitude: parseFloat(place.longitude),
+              locationName: `${place['place name']}, ${place['state abbreviation']}`
+            };
+          }
+        }
+      } else {
+        // For city/state names, use Nominatim with US country restriction
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location.trim())}&limit=1&addressdetails=1&countrycodes=us`,
+          {
+            headers: { 'User-Agent': 'smart-billboard-v2/1.0' }
+          }
+        );
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          // Check if the location is in the US
+          const countryCode = data[0].address?.country_code;
+          if (countryCode && countryCode.toLowerCase() !== 'us') {
+            setError("Please enter a US location only.");
+            return null;
+          }
+          
+          const address = data[0].address;
+          const city = address.city || address.town || address.village || address.hamlet;
+          const state = address.state;
+          
+          return {
+            latitude: parseFloat(data[0].lat),
+            longitude: parseFloat(data[0].lon),
+            locationName: `${city}, ${state}`
+          };
+        }
       }
       return null;
     } catch (error) {
@@ -104,7 +126,7 @@ export default function Home() {
   };
 
   // Extracted fetch logic
-  const fetchMessage = async (position?: GeolocationPosition, manualCoords?: { latitude: number; longitude: number }) => {
+  const fetchMessage = async (position?: GeolocationPosition, manualCoords?: { latitude: number; longitude: number; locationName?: string }) => {
     setLoading(true);
     setError("");
     
@@ -123,6 +145,7 @@ export default function Home() {
       requestBody = {
         latitude: manualCoords.latitude,
         longitude: manualCoords.longitude,
+        locationName: manualCoords.locationName
       };
     } else if (position) {
       // Use geolocation
@@ -171,7 +194,7 @@ export default function Home() {
         localStorage.setItem('manualLocation', JSON.stringify({
           latitude: coords.latitude,
           longitude: coords.longitude,
-          locationName: manualLocation.trim()
+          locationName: coords.locationName
         }));
         setHasManualLocation(true);
       }
@@ -254,11 +277,11 @@ export default function Home() {
           setManualLocation(locationName);
           setHasManualLocation(true);
           // Use saved coordinates
-          fetchMessage(undefined, { latitude, longitude });
+          fetchMessage(undefined, { latitude, longitude, locationName });
           
           // Set interval to fetch every 30 seconds with saved coordinates
           intervalRef.current = setInterval(() => {
-            fetchMessage(undefined, { latitude, longitude });
+            fetchMessage(undefined, { latitude, longitude, locationName });
           }, 30000); // 30 seconds
           
           return;

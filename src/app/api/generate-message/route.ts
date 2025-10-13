@@ -19,6 +19,7 @@ export async function POST(req: NextRequest) {
     
     let latitude: number;
     let longitude: number;
+    let locationName: string | undefined;
     
     if (locationParam && predefinedLocations[locationParam.toLowerCase()]) {
       // Use predefined location coordinates
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
       const body = await req.json();
       latitude = body.latitude;
       longitude = body.longitude;
+      locationName = body.locationName;
       
       if (!latitude || !longitude) {
         return NextResponse.json({ error: 'Missing latitude or longitude' }, { status: 400 });
@@ -46,7 +48,9 @@ export async function POST(req: NextRequest) {
     }
 
     const weatherData = await weatherRes.json();
-    const location = weatherData.name;
+    
+    // Use provided locationName if available, otherwise use Weather API location
+    const location = locationName || weatherData.name;
     const temperature = Math.round(weatherData.main.temp);
     const weatherDescription = weatherData.weather[0].description;
 
@@ -145,6 +149,8 @@ Message: [Final 1–2 sentence witty copy line]`;
     message = message.replace(/^['"]+|['"]+$/g, '');
     // Replace all straight single quotes with curly right single quote
     message = message.replace(/'/g, '\u2019');
+    // Replace M-dashes (em dashes) with commas
+    message = message.replace(/—/g, ',');
     
     return NextResponse.json({ message });
   } catch (error) {
