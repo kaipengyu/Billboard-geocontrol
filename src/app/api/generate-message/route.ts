@@ -119,7 +119,12 @@ Examples (wrong tone):
 
 Output format:
 Location: [City, State]  
-Message: [Final 1–2 sentence witty copy line]`;
+Message: [Final 1–2 sentence witty copy line]
+
+
+Before writing the final message, check whether your chosen local fact involves sensitive historical topics. 
+If it does, discard it and select a different, harmless one. 
+You must never mention or imply sensitive events or tragedies under any circumstances.`;
 
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -156,6 +161,61 @@ Message: [Final 1–2 sentence witty copy line]`;
     message = message.replace(/'/g, '\u2019');
     // Replace M-dashes (em dashes) with commas
     message = message.replace(/—/g, ',');
+    
+    // Hard rule: Reject if includes sensitive words and auto-regenerate
+    const sensitiveWords = [
+      'slavery', 'slave', 'civil war', 'massacre', 'segregation', 'protest', 'riot', 
+      'disaster', 'hurricane', 'killed', 'destroyed', 'burned', 'bomb', 'war', 
+      'shooting', 'tragedy'
+    ];
+    
+    const checkForSensitiveWords = (text: string) => {
+      return sensitiveWords.some(word => text.toLowerCase().includes(word.toLowerCase()));
+    };
+    
+    const formatMessage = (rawMessage: string) => {
+      let formatted = rawMessage;
+      const messageMatch = rawMessage.match(/Message:\s*([\s\S]+?)$/i);
+      if (messageMatch) {
+        formatted = messageMatch[1].trim();
+      }
+      formatted = formatted.replace(/^['"]+|['"]+$/g, '');
+      formatted = formatted.replace(/'/g, '\u2019');
+      formatted = formatted.replace(/—/g, ',');
+      return formatted;
+    };
+    
+    // Check initial message and retry if needed (max 3 attempts total)
+    let attempts = 1;
+    const maxAttempts = 3;
+    
+    while (checkForSensitiveWords(message) && attempts < maxAttempts) {
+      attempts++;
+      const retryPrompt = prompt + `\n\nIMPORTANT: The previous response contained sensitive content. This is attempt ${attempts} of ${maxAttempts}. Generate a completely different message that avoids any sensitive topics.`;
+      
+      const retryRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: retryPrompt }],
+          max_tokens: 80,
+          temperature: 0.7 + (attempts * 0.1), // Vary temperature for different seeds
+        }),
+      });
+      
+      if (retryRes.ok) {
+        const retryData = await retryRes.json();
+        const retryMessageRaw = retryData.choices?.[0]?.message?.content?.trim() || 'Have a wonderful day!';
+        message = formatMessage(retryMessageRaw);
+      } else {
+        // If retry fails, break out of loop and use current message
+        break;
+      }
+    }
     
     return NextResponse.json({ message });
   } catch (error) {
