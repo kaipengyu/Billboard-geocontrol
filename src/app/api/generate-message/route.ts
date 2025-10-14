@@ -95,6 +95,8 @@ Observational, smart, and conversational — like a clever friend pointing somet
 Avoid marketing clichés, rhymes, or obvious puns (“sizzle,” “shine bright,” “race to savings”).
 Humor should come from connection, contrast, or surprise, not wordplay.
 The goal is to make the reader think, “Ha, that’s actually true,” not “Okay, cute line.”
+Your message should always be friendly and inclusive. 
+If humor risks sounding dark, insensitive, or sarcastic about serious subjects, do not use it.
 
 Style:
 Lead with something real or believable about the location (local history, odd trivia, pop culture link, etc.).
