@@ -65,6 +65,9 @@ Location: ${location}
 IMPORTANT: 
 - Your PRIMARY focus should be finding a fun, curious, or pop-culture fact about this place (historical, quirky, or tongue-in-cheek). DO NOT default to weather references.
 - Write like a smart local with a sense of humor, not a corporate marketer. Prioritize wit, insight, or oddity over symmetry or sales tone. It’s okay if the line feels a little weird — weird is human.
+- DO NOT use or reference any sensitive, tragic, or controversial historical events or topics (e.g., war, slavery, colonialism, racism, natural disasters, or crimes). 
+- Stick to light, amusing, or quirky local facts that are safe for a general audience (sports, food, pop culture, odd traditions, local inventions, etc.).
+- If a place’s history is primarily serious, skip history altogether and use a cultural or geographic quirk instead.
 
 Using the location, infer or generate:
 - The city and region
