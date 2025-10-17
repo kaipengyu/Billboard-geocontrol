@@ -159,8 +159,8 @@ You must never mention or imply sensitive events or tragedies under any circumst
     message = message.replace(/^['"]+|['"]+$/g, '');
     // Replace all straight single quotes with curly right single quote
     message = message.replace(/'/g, '\u2019');
-    // Replace M-dashes (em dashes) with commas
-    message = message.replace(/—/g, ',');
+    // Replace M-dashes (em dashes) with commas, ensuring proper spacing
+    message = message.replace(/\s*—\s*/g, ', ');
     
     // Hard rule: Reject if includes sensitive words and auto-regenerate
     const sensitiveWords = [
@@ -181,7 +181,7 @@ You must never mention or imply sensitive events or tragedies under any circumst
       }
       formatted = formatted.replace(/^['"]+|['"]+$/g, '');
       formatted = formatted.replace(/'/g, '\u2019');
-      formatted = formatted.replace(/—/g, ',');
+      formatted = formatted.replace(/\s*—\s*/g, ', ');
       return formatted;
     };
     
