@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -351,7 +352,7 @@ export default function Home() {
             </div>
           </div>
           <div className={styles["brand-logos-vertical"]}>
-            <img src="/image/ICF-logo-black.png" alt="ICF logo" className={styles["brand-icf"]} />
+            <Image src="/image/ICF-logo-black.png" alt="ICF logo" className={styles["brand-icf"]} width={100} height={50} />
           </div>
         </footer>
       </div>
