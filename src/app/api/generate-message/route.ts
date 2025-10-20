@@ -162,7 +162,7 @@ You must never mention or imply sensitive events or tragedies under any circumst
     // Replace M-dashes (em dashes) with commas, ensuring proper spacing
     message = message.replace(/\s*—\s*/g, ', ');
     
-    // Hard rule: Reject if includes sensitive words and auto-regenerate
+    // Hard rule: Reject if includes sensitive words and auto-regenerate, test if it works
     const sensitiveWords = [
       'slavery', 'slave', 'civil war', 'massacre', 'segregation', 'protest', 'riot', 
       'disaster', 'hurricane', 'killed', 'destroyed', 'burned', 'bomb', 'war', 
