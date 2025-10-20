@@ -210,7 +210,7 @@ export default function Home() {
       // Set new interval with manual coordinates
       intervalRef.current = setInterval(() => {
         fetchMessage(undefined, coords);
-      }, 30000); // 30 seconds
+      }, 180000); // 3 minutes
     } else {
       setError("Could not find location. Please try a different US zip code or city name with state.");
       setManualLocation("");
@@ -251,7 +251,7 @@ export default function Home() {
       // Set interval for geolocation updates
       intervalRef.current = setInterval(() => {
         getGeoAndFetch();
-      }, 30000); // 30 seconds
+      }, 180000); // 3 minutes
     } else {
       setError("Geolocation is not supported by your browser.");
       setLoading(false);
@@ -279,10 +279,10 @@ export default function Home() {
           // Use saved coordinates
           fetchMessage(undefined, { latitude, longitude, locationName });
           
-          // Set interval to fetch every 30 seconds with saved coordinates
+          // Set interval to fetch every 3 minutes with saved coordinates
           intervalRef.current = setInterval(() => {
             fetchMessage(undefined, { latitude, longitude, locationName });
-          }, 30000); // 30 seconds
+          }, 180000); // 3 minutes
           
           return;
         } catch (error) {
@@ -316,10 +316,10 @@ export default function Home() {
       // Initial fetch
       getGeoAndFetch();
 
-      // Set interval to fetch every 30 seconds
+      // Set interval to fetch every 3 minutes
       intervalRef.current = setInterval(() => {
         getGeoAndFetch();
-      }, 30000); // 30 seconds
+      }, 180000); // 3 minutes
     }
 
     return () => {
