@@ -130,7 +130,7 @@ You must never mention or imply sensitive events or tragedies under any circumst
     const sensitiveWords = [
       'slavery', 'slave', 'civil war', 'massacre', 'segregation', 'protest', 'riot', 
       'disaster', 'hurricane', 'killed', 'destroyed', 'burned', 'bomb', 'war', 
-      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'sunset', 'rat'
+      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'sunset', 'rat', "traffic"
     ];
     
     const checkForSensitiveWords = (text: string) => {
