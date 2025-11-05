@@ -37,6 +37,7 @@ IMPORTANT:
 - DO NOT use or reference any sensitive, tragic, or controversial historical events or topics (e.g., war, slavery, colonialism, racism, natural disasters, or crimes). 
 - Stick to light, amusing, or quirky local facts that are safe for a general audience (sports, food, pop culture, odd traditions, local inventions, etc.).
 - If a place's history is primarily serious, skip history altogether and use a cultural or geographic quirk instead.
+- NEVER mention rats, rodents, or pests in any context. This is absolutely forbidden.
 
 Using the location, infer or generate:
 - The city and region
@@ -130,7 +131,7 @@ You must never mention or imply sensitive events or tragedies under any circumst
     const sensitiveWords = [
       'slavery', 'slave', 'civil war', 'massacre', 'segregation', 'protest', 'riot', 
       'disaster', 'hurricane', 'killed', 'destroyed', 'burned', 'bomb', 'war', 
-      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'sunset', 'rat', "traffic", "rats", "rodent"
+      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'sunset', 'rat', "traffic", "rats", "rodent", "pest", "jam", "mice"
     ];
     
     const checkForSensitiveWords = (text: string) => {
