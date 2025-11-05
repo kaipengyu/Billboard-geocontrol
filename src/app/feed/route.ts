@@ -130,11 +130,22 @@ You must never mention or imply sensitive events or tragedies under any circumst
     const sensitiveWords = [
       'slavery', 'slave', 'civil war', 'massacre', 'segregation', 'protest', 'riot', 
       'disaster', 'hurricane', 'killed', 'destroyed', 'burned', 'bomb', 'war', 
-      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'slavery', 'slave', 'civil war', 'sunset'
+      'shooting', 'tragedy', 'colonialism', 'colonial', 'colony', 'racism', 'sunset'
     ];
     
     const checkForSensitiveWords = (text: string) => {
-      return sensitiveWords.some(word => text.toLowerCase().includes(word.toLowerCase()));
+      const lowerText = text.toLowerCase();
+      // Normalize text: replace punctuation with spaces for word boundary matching
+      const normalizedText = lowerText.replace(/[^\w\s]/g, ' ');
+      
+      return sensitiveWords.some(word => {
+        const lowerWord = word.toLowerCase().trim();
+        // First try word boundary match (for whole words)
+        const escapedWord = lowerWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const wordBoundaryRegex = new RegExp(`\\b${escapedWord}\\b`, 'i');
+        // Also check for substring match (handles multi-word phrases like "civil war")
+        return wordBoundaryRegex.test(normalizedText) || lowerText.includes(lowerWord);
+      });
     };
     
     if (checkForSensitiveWords(message)) {
